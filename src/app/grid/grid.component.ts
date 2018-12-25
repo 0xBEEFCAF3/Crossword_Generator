@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import {element} from './element'
+import {solve} from './solve';
 
 
 @Component({
@@ -41,9 +42,14 @@ export class GridComponent implements OnInit {
 
     console.log({axis,symX, symY});
     this.grid[(symX)][(symY)].setBlacknd(true);
-    markforCheck();
-    detectChanges() 
+    // markforCheck();
+    // detectChanges() 
 
+  }
+
+  solve(){
+    let ctrl = new solve(this.grid);
+    ctrl.generateWord("");
   }
 
   ngOnInit() {
