@@ -5,8 +5,7 @@
       <tbody> 
         <tr *ngFor="let els of grid ; let m = index" class="tile-row">
           <td *ngFor="let el of els ; let n = index" [attr.m]="m" [attr.n]="n" class="tile {{el.getBlacknd() ? 'black-tile' : ''}}" (click)="setBlackBox(m,n)">
-                
-                {{el.toString()}}
+              <b>  {{el.toString()}} </b>
           </td>
         </tr>
       </tbody>

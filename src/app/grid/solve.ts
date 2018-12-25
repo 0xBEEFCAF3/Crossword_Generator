@@ -2,10 +2,6 @@ import {element} from './element';
 import {cherrio} from 'cheerio';
 import $ from "jquery";
 
-String.prototype.replaceAt=function(index, replacement) {
-    return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
-}
-
 
 export class solve{
 
@@ -43,9 +39,7 @@ export class solve{
       }
 
     public generateWord(word :string) {
-        console.log("generating");
         const wordSize = word.length;
-        //https://onelook.com/?w=ne*p&ls=a
         let promise = new Promise((resolve, reject) =>{
             let _this = this;
             var settings = {
@@ -57,7 +51,6 @@ export class solve{
                 "cache-control": "no-cache",
                 }
             }
-            
           $.ajax(settings).done(function (response) {
             resolve(_this.getTopWord(response, wordSize));
           });
@@ -108,36 +101,63 @@ export class solve{
             //SOLVING HORIZONTALLY
             currentWordSize = 0;
             currentWord = "";
-            for(let i=0;i<m;i++){
+            for(let top = 0, bottom = m-1; top <= Math.floor(m/2)-1 && bottom >= Math.floor(m/2) ;top++,bottom--){
+                console.log({top,bottom}, Math.floor(m/2) , Math.floor(m/2)+1 )
+                 /************  TOP ***********/
                 for(let j=0;j<=n;j++){
-                    console.log({i,j,currentWord,n,m})
-                    if (j == n || this.grid[i][j].getBlacknd() == true ){ //if last iteration of row or black square
+                    if (j == n || this.grid[top][j].getBlacknd() == true ){ //if last iteration of row or black square then we need to fill in some tiles
                         //check for empty string conditions
                         if(currentWord.length == 0) continue;
                         else if(this.checkEmptyWord(currentWord) == true){
-                            currentWord = currentWord.replaceAt(0,this.getRandomChar());
+                            currentWord =  currentWord.substr(0, 0) + this.getRandomChar()+ currentWord.substr(0 + this.getRandomChar().length);
                         }
                         console.warn("CURRENT WORD::: ", currentWord);
                         //get the word from the size
                         let generatedWord = await this.generateWord(currentWord);
                         console.warn("THE WORD WE GOT:::: ", generatedWord);
                         //fill in the grid
-                        this.fillGridHor(i,j,generatedWord);
+                        this.fillGridHor(top,j,generatedWord);
                         //reset word and word size keep going
                         currentWord = "";
                     }else{
                         //if not a empty space add to word, else add '?'
-                        if(this.grid[i][j].getVal() != ""){
-                            currentWord += this.grid[i][j].getVal();
+                        if(this.grid[top][j].getVal() != ""){
+                            currentWord += this.grid[top][j].getVal();
                         }else{
                             currentWord += "?";
                         }
                     }
-
+                }
+                 /********* BOTTOM **********/
+                 console.log("BOTTOM::: ", bottom);
+                 for(let j=0;j<=n;j++){
+                    if (j == n || this.grid[bottom][j].getBlacknd() == true ){ //if last iteration of row or black square then we need to fill in some tiles
+                        //check for empty string conditions
+                        if(currentWord.length == 0) continue;
+                        else if(this.checkEmptyWord(currentWord) == true){
+                            currentWord =  currentWord.substr(0, 0) + this.getRandomChar()+ currentWord.substr(0 + this.getRandomChar().length);
+                        }
+                        console.warn("CURRENT WORD::: ", currentWord);
+                        //get the word from the size
+                        let generatedWord = await this.generateWord(currentWord);
+                        console.warn("THE WORD WE GOT:::: ", generatedWord);
+                        //fill in the grid
+                        this.fillGridHor(bottom,j,generatedWord);
+                        //reset word and word size keep going
+                        currentWord = "";
+                    }else{
+                        //if not a empty space add to word, else add '?'
+                        if(this.grid[bottom][j].getVal() != ""){
+                            currentWord += this.grid[bottom][j].getVal();
+                        }else{
+                            currentWord += "?";
+                        }
+                    }
                 }
             }
         }else{
-
+            //Fill in veritically
+            
         }
     }
 
