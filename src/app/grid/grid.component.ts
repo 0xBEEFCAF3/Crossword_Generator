@@ -42,14 +42,15 @@ export class GridComponent implements OnInit {
 
     console.log({axis,symX, symY});
     this.grid[(symX)][(symY)].setBlacknd(true);
-    // markforCheck();
-    // detectChanges() 
+    
+    ChangeDetectorRef.markforCheck();
+    ChangeDetectorRef.detectChanges() 
 
   }
 
   solve(){
     let ctrl = new solve(this.grid);
-    ctrl.generateWord("");
+   
   }
 
   ngOnInit() {

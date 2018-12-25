@@ -4,8 +4,8 @@ export class element{
 
     public x : number;
     public y : number;
-    public val : string;
-    public isBlacknd : boolean;
+    private val : string;
+    private isBlacknd : boolean;
 
     constructor(x,y){
         this.x = x;
@@ -17,6 +17,10 @@ export class element{
 
     setVal(val: string){
         this.val = val;
+    }
+
+    getVal(){
+        return this.val;
     }
 
     setBlacknd(val : boolean){
