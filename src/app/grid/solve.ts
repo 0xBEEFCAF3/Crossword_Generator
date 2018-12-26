@@ -19,6 +19,18 @@ export class solve{
         return this.grid;
     }
 
+    private isGridFilled() : boolean{
+        const m :number = this.grid.length;
+        const n :number = this.grid[0].length;
+        for(let i=0;i<m;i++){
+            for(let j=0;j<n;j++){
+                if(this.grid[i][j].getBlacknd() == true)continue;
+                if(this.grid[i][j].getVal() == "") return false;
+            }
+        }
+        return true;
+    }
+
     private isValidWord(str:string) : boolean{
         return !/[~.'`!#$%\^&*+=\-\[\]\\;,/{}|\\":<>\?]/g.test(str);
        }
@@ -34,13 +46,15 @@ export class solve{
 
     private getRandomChar() :string {
         var text = "";
-        var possible = "abcdefghijklmnopqrstuvwxyz";
+        var possible = "abcdefghijklmnoprst";
         return possible.charAt(Math.floor(Math.random() * possible.length));
       }
 
     public generateWord(word :string) {
+        console.warn(word);
         const wordSize = word.length;
         let promise = new Promise((resolve, reject) =>{
+            if(word.includes("?")==false) resolve(word);
             let _this = this;
             var settings = {
                 "async": true,
@@ -82,12 +96,20 @@ export class solve{
 
     private fillGridHor(row : number, col : number, word : string) : void{
         const wordSize : number = word.length;
-        //console.error(col, wordSize);
-
         let initCol : number  = col - wordSize;
         let wordIdx : number = 0;
         for(let i = initCol;i<col;i++,wordIdx++){
             this.grid[row][i].setVal(word[wordIdx])
+        }
+    }
+
+    private fillGridVert(row : number, col : number, word : string) : void{
+        const wordSize : number = word.length;
+        let initRow : number  = row - wordSize;
+        let wordIdx : number = 0;
+        console.log({row, col, word});
+        for(let i = initRow;i<row;i++,wordIdx++){
+            this.grid[i][col].setVal(word[wordIdx])
         }
     }
 
@@ -97,24 +119,21 @@ export class solve{
         
         let currentWordSize : number;
         let currentWord : string;
-        if(this.mode == true){
+        let top = 0, bottom = m-1, left = 0, right = m-1;
+        
+        while(this.isGridFilled() == false){
             //SOLVING HORIZONTALLY
-            currentWordSize = 0;
             currentWord = "";
-            for(let top = 0, bottom = m-1; top <= Math.floor(m/2)-1 && bottom >= Math.floor(m/2) ;top++,bottom--){
+            if( top <= Math.floor(m/2)-1 && bottom >= Math.floor(m/2) ){
                 console.log({top,bottom}, Math.floor(m/2) , Math.floor(m/2)+1 )
                  /************  TOP ***********/
                 for(let j=0;j<=n;j++){
                     if (j == n || this.grid[top][j].getBlacknd() == true ){ //if last iteration of row or black square then we need to fill in some tiles
                         //check for empty string conditions
                         if(currentWord.length == 0) continue;
-                        else if(this.checkEmptyWord(currentWord) == true){
-                            currentWord =  currentWord.substr(0, 0) + this.getRandomChar()+ currentWord.substr(0 + this.getRandomChar().length);
-                        }
-                        console.warn("CURRENT WORD::: ", currentWord);
+                        else if(this.checkEmptyWord(currentWord) == true) currentWord =  currentWord.substr(0, 0) + this.getRandomChar()+ currentWord.substr(0 + this.getRandomChar().length);
                         //get the word from the size
                         let generatedWord = await this.generateWord(currentWord);
-                        console.warn("THE WORD WE GOT:::: ", generatedWord);
                         //fill in the grid
                         this.fillGridHor(top,j,generatedWord);
                         //reset word and word size keep going
@@ -129,18 +148,13 @@ export class solve{
                     }
                 }
                  /********* BOTTOM **********/
-                 console.log("BOTTOM::: ", bottom);
                  for(let j=0;j<=n;j++){
                     if (j == n || this.grid[bottom][j].getBlacknd() == true ){ //if last iteration of row or black square then we need to fill in some tiles
                         //check for empty string conditions
                         if(currentWord.length == 0) continue;
-                        else if(this.checkEmptyWord(currentWord) == true){
-                            currentWord =  currentWord.substr(0, 0) + this.getRandomChar()+ currentWord.substr(0 + this.getRandomChar().length);
-                        }
-                        console.warn("CURRENT WORD::: ", currentWord);
+                        else if(this.checkEmptyWord(currentWord) == true) currentWord =  currentWord.substr(0, 0) + this.getRandomChar()+ currentWord.substr(0 + this.getRandomChar().length);
                         //get the word from the size
                         let generatedWord = await this.generateWord(currentWord);
-                        console.warn("THE WORD WE GOT:::: ", generatedWord);
                         //fill in the grid
                         this.fillGridHor(bottom,j,generatedWord);
                         //reset word and word size keep going
@@ -154,10 +168,61 @@ export class solve{
                         }
                     }
                 }
-            }
-        }else{
-            //Fill in veritically
-            
+                //Increment loops 
+                top++;
+                bottom--;
+            }//end of horizontal
+            console.warn("doing verticals");
+            //SOLVING VERTICALLY
+            currentWord = "";
+            if( left <= Math.floor(m/2)-1 && right >= Math.floor(m/2) ){
+                 /************  left ***********/
+                for(let j=0;j<=n;j++){
+                    if (j == n || this.grid[j][left].getBlacknd() == true ){ //if last iteration of row or black square then we need to fill in some tiles
+                        //check for empty string conditions
+                        if(currentWord.length == 0) continue;
+                        else if(this.checkEmptyWord(currentWord) == true) currentWord =  currentWord.substr(0, 0) + this.getRandomChar()+ currentWord.substr(0 + this.getRandomChar().length);
+                        //get the word from the size
+                        let generatedWord = await this.generateWord(currentWord);
+                        //fill in the grid
+                        this.fillGridVert(j,left,generatedWord);
+                        //reset word and word size keep going
+                        currentWord = "";
+                    }else{
+                        //if not a empty space add to word, else add '?'
+                        if(this.grid[j][left].getVal() != ""){
+                            currentWord += this.grid[j][left].getVal();
+                        }else{
+                            currentWord += "?";
+                        }
+                    }
+                }
+                 /********* right **********/
+                 for(let j=0;j<=n;j++){
+                    if (j == n || this.grid[j][right].getBlacknd() == true ){ //if last iteration of row or black square then we need to fill in some tiles
+                        //check for empty string conditions
+                        if(currentWord.length == 0) continue;
+                        else if(this.checkEmptyWord(currentWord) == true) currentWord =  currentWord.substr(0, 0) + this.getRandomChar()+ currentWord.substr(0 + this.getRandomChar().length);
+                        //get the word from the size
+                        let generatedWord = await this.generateWord(currentWord);
+                        console.log("generated word VERT ::;" , generatedWord);
+                        //fill in the grid
+                        this.fillGridVert(j,right,generatedWord);
+                        //reset word and word size keep going
+                        currentWord = "";
+                    }else{
+                        //if not a empty space add to word, else add '?'
+                        if(this.grid[j][right].getVal() != ""){
+                            currentWord += this.grid[j][right].getVal();
+                        }else{
+                            currentWord += "?";
+                        }
+                    }
+                }
+                //Increment loops 
+                left++;
+                right--;
+            }//end of vertical
         }
     }
 

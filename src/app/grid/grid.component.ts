@@ -16,8 +16,8 @@ export class GridComponent implements OnInit {
   public grid: element[][];
 
   constructor() {
-    this.m  = 10;
-    this.n = 10;
+    this.m  = 13;
+    this.n = 13;
     this.initGrid();
    }
 
@@ -50,7 +50,7 @@ export class GridComponent implements OnInit {
 
   solve(){
     let ctrl = new solve(this.grid);
-   
+
   }
 
   ngOnInit() {
